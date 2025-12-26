@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Selector Component</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            width: 430px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .list-item:first-child {
+            padding-top: 0;
+        }
+
+        .list-item:last-of-type {
+            border-bottom: none;
+            padding-bottom: 24px;
+        }
+
+        .item-label {
+            font-size: 16px;
+            color: #333;
+            font-weight: 400;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            z-index: 2;
+        }
+
+        .custom-checkbox {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #d1d1d1;
+            border-radius: 6px;
+            background-color: white;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked ~ .custom-checkbox {
+            background-color: #5B7FFF;
+            border-color: #5B7FFF;
+        }
+
+        .custom-checkbox::after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2.5px 2.5px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-wrapper input[type="checkbox"]:checked ~ .custom-checkbox::after {
+            display: block;
+        }
+
+        .done-button {
+            width: 100%;
+            height: 48px;
+            background: #FFCE22;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .done-button:hover {
+            background: #FFD84D;
+        }
+
+        .done-button:active {
+            background: #F5C020;
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 100%;
+                max-width: 430px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="list-item" onclick="handleListClick(this)">
+            <span class="item-label">All pages</span>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="check-all" onclick="handleCheckboxClick(event, this)">
+                <span class="custom-checkbox"></span>
+            </div>
+        </div>
+
+        <div class="list-item" onclick="handleListClick(this)">
+            <span class="item-label">Page 1</span>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="page-checkbox" id="check1" onclick="handleCheckboxClick(event, this)">
+                <span class="custom-checkbox"></span>
+            </div>
+        </div>
+
+        <div class="list-item" onclick="handleListClick(this)">
+            <span class="item-label">Page 2</span>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="page-checkbox" id="check2" onclick="handleCheckboxClick(event, this)">
+                <span class="custom-checkbox"></span>
+            </div>
+        </div>
+
+        <div class="list-item" onclick="handleListClick(this)">
+            <span class="item-label">Page 3</span>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="page-checkbox" id="check3" onclick="handleCheckboxClick(event, this)">
+                <span class="custom-checkbox"></span>
+            </div>
+        </div>
+
+        <div class="list-item" onclick="handleListClick(this)">
+            <span class="item-label">Page 4</span>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="page-checkbox" id="check4" onclick="handleCheckboxClick(event, this)">
+                <span class="custom-checkbox"></span>
+            </div>
+        </div>
+
+        <button class="done-button" onclick="handleDone()">Done</button>
+    </div>
+
+    <script>
+        // Handle checkbox direct click - let native behavior happen, then sync
+        function handleCheckboxClick(event, checkbox) {
+            event.stopPropagation(); // Prevent list item click
+
+            // Use setTimeout to ensure checkbox state is updated after native click
+            setTimeout(() => {
+                if (checkbox.id === 'check-all') {
+                    handleAllPagesChange(checkbox);
+                } else {
+                    updateAllPagesCheckbox();
+                }
+            }, 0);
+        }
+
+        // Handle list item click - toggle the checkbox manually
+        function handleListClick(listItem) {
+            const checkbox = listItem.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+
+            if (checkbox.id === 'check-all') {
+                handleAllPagesChange(checkbox);
+            } else {
+                updateAllPagesCheckbox();
+            }
+        }
+
+        // When "All pages" checkbox is toggled, select/deselect all page checkboxes
+        function handleAllPagesChange(allCheckbox) {
+            const pageCheckboxes = document.querySelectorAll('.page-checkbox');
+            pageCheckboxes.forEach(checkbox => {
+                checkbox.checked = allCheckbox.checked;
+            });
+        }
+
+        // When any individual page checkbox changes, update "All pages" checkbox
+        function updateAllPagesCheckbox() {
+            const allCheckbox = document.getElementById('check-all');
+            const pageCheckboxes = document.querySelectorAll('.page-checkbox');
+            const allChecked = Array.from(pageCheckboxes).every(cb => cb.checked);
+
+            allCheckbox.checked = allChecked;
+        }
+
+        // Handle Done button click
+        function handleDone() {
+            const allCheckbox = document.getElementById('check-all');
+            const pageCheckboxes = document.querySelectorAll('.page-checkbox');
+
+            const selectedPages = Array.from(pageCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.closest('.list-item').querySelector('.item-label').textContent);
+
+            if (allCheckbox.checked) {
+                alert('All pages selected!\n\nSelected: ' + selectedPages.join(', '));
+            } else if (selectedPages.length > 0) {
+                alert('Selected pages:\n\n' + selectedPages.join('\n'));
+            } else {
+                alert('No pages selected!');
+            }
+
+            console.log('Selected pages:', selectedPages);
+        }
+    </script>
+</body>
+</html>
